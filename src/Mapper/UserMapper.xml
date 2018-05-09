@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace命名空间，作用就是对sql进行分类化管理
+注意：使用mapper代理方法开发，namespace有特殊重要的作用
+-->
+<mapper namespace="Mapper.UserMapper">
+
+    <!-- 动态sql语句  结合where使用-->
+    <sql id="query_user_where">
+        <if test="txt!=null">
+            and pushtime!=NULL
+        </if>
+    </sql>
+
+    <select id="findUserById" parameterType="int" resultType="utils.User">
+        SELECT * FROM 丽水
+        <!-- where自动去掉第一个and-->
+        <where>
+            <include refid="query_user_where"></include>
+        </where>
+
+        <!--模糊查询 返回list-->
+        <!--
+        ${}:表示拼接sql串，将接收到参数的内容不加任何修饰拼接在sql中。
+        ${value}：接收输入 参数的内容，如果传入类型是简单类型，${}中只能使用value
+        SELECT * FROM USER WHERE username LIKE '%${value}%'
+        -->
+
+    <!-- 添加用户
+    parameterType：指定输入 参数类型是pojo（包括 用户信息）
+    #{}中指定pojo的属性名，接收到pojo对象的属性值，mybatis通过OGNL获取对象的属性值
+    -->
+    <insert id="insertUser" parameterType="utils.User">
+        <!--
+        将插入数据的主键返回，返回到user对象中
+
+        SELECT LAST_INSERT_ID()：得到刚insert进去记录的主键值，只适用与自增主键
+
+        keyProperty：将查询到主键值设置到parameterType指定的对象的哪个属性
+        order：SELECT LAST_INSERT_ID()执行顺序，相对于insert语句来说它的执行顺序
+        resultType：指定SELECT LAST_INSERT_ID()的结果类型
+         -->
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into 丽水(title,titleurl,pushdate,txt,doc,download_time) value(#{title},#{titleurl},#{pushdate},#{txt},#{doc},#{download_time})
+    </insert>
+
+    <!-- 删除 用户
+    根据id删除用户，需要输入 id值
+     -->
+    <delete id="deleteUser" parameterType="java.lang.Integer">
+        delete from user where id=#{id}
+    </delete>
+
+    <!-- 根据id更新用户
+    分析：
+    需要传入用户的id
+    需要传入用户的更新信息
+    parameterType指定user对象，包括 id和更新信息，注意：id必须存在
+    #{id}：从输入 user对象中获取id属性值
+     -->
+    <update id="updateUser" parameterType="utils.User">
+        update 丽水 set title=#{title},titleurl=#{titleurl},doc=#{doc},pushtime=#{pushutime},txt=#{txt},download_time=#{download_time}
+        where id=#{id}
+    </update>
+
+</mapper>
+
+
